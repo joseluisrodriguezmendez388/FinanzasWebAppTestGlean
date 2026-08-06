@@ -7,18 +7,18 @@
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import { initializeFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
   const firebaseConfig = {
-    apiKey: "AIzaSyCRFoDOYRhXy9YoI-CPc2ys-6UkhuoEA6k",
-    authDomain: "finanzas-cca49.firebaseapp.com",
-    projectId: "finanzas-cca49",
-    storageBucket: "finanzas-cca49.firebasestorage.app",
-    messagingSenderId: "973777158760",
-    appId: "1:973777158760:web:43c1a35d85eadf0d2831dd"
+    apiKey: "AIzaSyCs_6Tf7qxnXUb_3Rs2xC-osKD2ZtKR5Ww",
+    authDomain: "testwebglean.firebaseapp.com",
+    projectId: "testwebglean",
+    storageBucket: "testwebglean.firebasestorage.app",
+    messagingSenderId: "546557673830",
+    appId: "1:546557673830:web:580dfb9e8a4833f91bc8a7"
   };
   try {
     const app = initializeApp(firebaseConfig);
-    const fdb = getFirestore(app);
+    const fdb = initializeFirestore(app, { experimentalForceLongPolling: true, useFetchStreams: false });
     window.__fb = { fdb, doc, getDoc, setDoc, onSnapshot };
   } catch (e) { window.__fbError = e.message; }
   window.dispatchEvent(new Event("firebase-ready"));
@@ -245,7 +245,7 @@ tbody tr:hover{background:var(--artifact-surface-2)}
 
 <script>
 /* ============================ Balance 360 core ============================ */
-const STORE_KEY='balance360_v2';
+const STORE_KEY='balance360_v5';
 const COP=new Intl.NumberFormat('es-CO',{maximumFractionDigits:0});
 function fmt(n){return '$'+COP.format(Math.round(n||0))+' COP';}
 function fmtShort(n){n=Math.round(n||0);return '$'+COP.format(n);}
@@ -269,46 +269,16 @@ const CATEGORIES=['Alimentación','Servicios','Transporte','Vivienda','Salud','E
 
 /* ------------------------------ seed / storage ------------------------------ */
 function seed(){
-  const t=todayISO();
   return {
-    settings:{currency:'COP',theme:'light',rules:{basicos:50,ahorro:20,estilo:30},minLiquidity:800000,demo:true},
-    accounts:[
-      {id:uid(),name:'Cuenta Nómina',type:'Cuenta bancaria',balance:3200000},
-      {id:uid(),name:'Efectivo',type:'Efectivo',balance:400000},
-      {id:uid(),name:'Ahorro Emergencia',type:'Cuenta de ahorro',balance:2500000},
-      {id:uid(),name:'Billetera Nequi',type:'Billetera digital',balance:350000}
-    ],
-    incomes:[
-      {id:uid(),amount:8000000,date:addDaysISO(t,-12),time:'09:00',source:'Salario',category:'Salario',account:'Cuenta Nómina',type:'Fijo',frequency:'Mensual',desc:'Pago de nómina',tags:'principal'},
-      {id:uid(),amount:1200000,date:addDaysISO(t,-4),time:'14:30',source:'Freelance',category:'Extra',account:'Billetera Nequi',type:'Variable',frequency:'Eventual',desc:'Proyecto de diseño',tags:'extra'}
-    ],
-    expenses:[
-      {id:uid(),amount:1900000,date:addDaysISO(t,-11),category:'Vivienda',sub:'Arriendo',bucket:'basicos',desc:'Arriendo mensual',method:'Transferencia',account:'Cuenta Nómina',payee:'Inmobiliaria',recurring:true,budgeted:true},
-      {id:uid(),amount:620000,date:addDaysISO(t,-10),category:'Alimentación',sub:'Mercado',bucket:'basicos',desc:'Mercado quincenal',method:'Débito',account:'Cuenta Nómina',payee:'Supermercado',recurring:true,budgeted:true},
-      {id:uid(),amount:280000,date:addDaysISO(t,-9),category:'Servicios',sub:'Energía/Agua',bucket:'basicos',desc:'Servicios públicos',method:'Débito',account:'Cuenta Nómina',payee:'Empresa Servicios',recurring:true,budgeted:true},
-      {id:uid(),amount:900000,date:addDaysISO(t,-8),category:'Ahorro',sub:'Fondo emergencia',bucket:'ahorro',desc:'Aporte ahorro',method:'Transferencia',account:'Ahorro Emergencia',payee:'Propia',recurring:true,budgeted:true},
-      {id:uid(),amount:450000,date:addDaysISO(t,-6),category:'Entretenimiento',sub:'Restaurantes',bucket:'estilo',desc:'Salidas y restaurantes',method:'Crédito',account:'Efectivo',payee:'Varios',recurring:false,budgeted:false},
-      {id:uid(),amount:320000,date:addDaysISO(t,-3),category:'Compras',sub:'Ropa',bucket:'estilo',desc:'Compras personales',method:'Crédito',account:'Efectivo',payee:'Tienda',recurring:false,budgeted:false},
-      {id:uid(),amount:180000,date:addDaysISO(t,-2),category:'Transporte',sub:'Combustible',bucket:'basicos',desc:'Gasolina',method:'Débito',account:'Cuenta Nómina',payee:'Estación',recurring:false,budgeted:true}
-    ],
-    credits:[
-      {id:uid(),name:'Crédito Vehículo',entity:'Banco Nacional',initial:45000000,balance:28500000,rate:1.2,rateType:'Mensual',cuota:1250000,nCuotas:48,paidCuotas:14,startDate:addDaysISO(t,-420),nextPay:addDaysISO(t,7),insurance:38000,fees:0,status:'Al día',priority:'Media',notes:'Vehículo familiar'},
-      {id:uid(),name:'Tarjeta de Crédito',entity:'Banco Visa',initial:6000000,balance:4200000,rate:2.4,rateType:'Mensual',cuota:520000,nCuotas:24,paidCuotas:6,startDate:addDaysISO(t,-190),nextPay:addDaysISO(t,3),insurance:0,fees:15000,status:'Al día',priority:'Alta',notes:'Consumo diferido'},
-      {id:uid(),name:'Crédito Libre Inversión',entity:'Cooperativa',initial:10000000,balance:1800000,rate:1.6,rateType:'Mensual',cuota:480000,nCuotas:24,paidCuotas:20,startDate:addDaysISO(t,-600),nextPay:addDaysISO(t,-2),insurance:12000,fees:0,status:'Atrasado',priority:'Alta',notes:'Cuota vencida'}
-    ],
-    payments:[
-      {id:uid(),creditId:null,creditName:'Crédito Vehículo',amount:1250000,date:addDaysISO(t,-25),account:'Cuenta Nómina',type:'Cuota programada',capital:908000,interest:342000,fee:0,note:'Cuota mensual'}
-    ],
+    settings:{currency:'COP',theme:'light',rules:{basicos:50,ahorro:20,estilo:30},minLiquidity:0,cutDay:20,demo:false},
+    accounts:[],
+    incomes:[],
+    expenses:[],
+    credits:[],
+    payments:[],
     closures:[],
-    budgets:[
-      {id:uid(),category:'Alimentación',period:'Mes',amount:1300000},
-      {id:uid(),category:'Entretenimiento',period:'Mes',amount:500000},
-      {id:uid(),category:'Transporte',period:'Mes',amount:400000}
-    ],
-    goals:[
-      {id:uid(),name:'Fondo de emergencia',type:'Fondo de emergencia',target:9600000,saved:2500000,deadline:addDaysISO(t,300),frequency:'Mensual'},
-      {id:uid(),name:'Viaje fin de año',type:'Viaje',target:4000000,saved:900000,deadline:addDaysISO(t,150),frequency:'Mensual'}
-    ],
+    budgets:[],
+    goals:[],
     history:[],
     strategy:'avalanche'
   };
@@ -322,8 +292,8 @@ function mergeDefaults(data){const base=seed();const out=Object.assign({},base,d
 function scheduleCloudSave(){if(!FB||!fbDocRef)return;clearTimeout(saveTimer);setFbStatus('saving');saveTimer=setTimeout(async()=>{try{const token=uid();localWriteToken=token;const payload=JSON.parse(JSON.stringify(DB));payload._token=token;payload._updatedAt=new Date().toISOString();await FB.setDoc(fbDocRef,payload);setFbStatus('online');}catch(e){setFbStatus('error');toast('Sin sincronizar','No se pudo guardar en Firebase: '+(e.code||e.message),'err');}},700);}
 async function initFirebase(){if(fbReady)return;fbReady=true;if(!window.__fb){setFbStatus(window.__fbError?'error':'local');return;}FB=window.__fb;fbDocRef=FB.doc(FB.fdb,'balance360','main');setFbStatus('connecting');
   try{const snap=await FB.getDoc(fbDocRef);
-    if(snap.exists()){DB=mergeDefaults(snap.data());save();render();}
-    else{const token=uid();localWriteToken=token;const payload=JSON.parse(JSON.stringify(DB));payload._token=token;payload._updatedAt=new Date().toISOString();await FB.setDoc(fbDocRef,payload);}
+    if(snap.exists()){DB=mergeDefaults(snap.data());try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}render();}
+    // Si el documento no existe, no se crean ni se suben datos: se respeta lo que haya y se espera a que el usuario registre.
     setFbStatus('online');
     FB.onSnapshot(fbDocRef,snap2=>{if(!snap2.exists())return;const data=snap2.data();if(data._token&&data._token===localWriteToken)return;if(document.getElementById('modalBack').classList.contains('open'))return;DB=mergeDefaults(data);try{localStorage.setItem(STORE_KEY,JSON.stringify(DB));}catch(e){}render();setFbStatus('online');});
   }catch(e){setFbStatus('error');toast('Firebase','No se pudo conectar: '+(e.code||e.message)+'. Se usan datos locales.','err');}
@@ -332,9 +302,9 @@ function logHistory(action,detail){DB.history.unshift({id:uid(),ts:new Date().to
 
 /* ------------------------------ computations ------------------------------ */
 function totalIncome(){return DB.incomes.reduce((s,i)=>s+i.amount,0);}
-function totalExpense(){return DB.expenses.reduce((s,e)=>s+e.amount,0);}
+function totalExpense(){return DB.expenses.reduce((s,e)=>s+e.amount,0)+DB.payments.reduce((s,p)=>s+p.amount,0);}
 function bucketReal(){const b={basicos:0,ahorro:0,estilo:0};DB.expenses.forEach(e=>{b[e.bucket||'estilo']+=e.amount;});
-  // debt principal payments count toward ahorro (pago de deudas)
+  b.basicos+=DB.payments.reduce((s,p)=>s+p.amount,0); // los pagos de crédito se cuentan como costo básico
   return b;}
 function recommendedDist(income){const r=DB.settings.rules;return {basicos:income*r.basicos/100,ahorro:income*r.ahorro/100,estilo:income*r.estilo/100};}
 function accountsTotal(){return DB.accounts.reduce((s,a)=>s+a.balance,0);}
@@ -356,6 +326,28 @@ function liquidity(){
   return {disp,upcoming,net,state,cls,min};
 }
 function extraPaymentCapacity(){const l=liquidity();return Math.max(0,l.net-l.min);}
+function cutDay(){return Math.min(28,Math.max(1,DB.settings.cutDay||20));}
+function cutCycle(ref){const d=ref?new Date(ref+'T00:00:00'):new Date();const cd=cutDay();let cs=new Date(d.getFullYear(),d.getMonth(),cd);if(d.getDate()<cd)cs=new Date(d.getFullYear(),d.getMonth()-1,cd);const end=new Date(cs.getFullYear(),cs.getMonth()+1,cs.getDate());const iso=x=>x.toISOString().slice(0,10);return {start:iso(cs),end:iso(end)};}
+function inCycle(dt,cy){return dt>=cy.start&&dt<cy.end;}
+function cycleIncome(cy){return DB.incomes.filter(i=>inCycle(i.date,cy)).reduce((s,i)=>s+i.amount,0);}
+function cycleBuckets(cy){const b={basicos:0,ahorro:0,estilo:0};DB.expenses.filter(e=>inCycle(e.date,cy)).forEach(e=>b[e.bucket||'estilo']+=e.amount);b.basicos+=DB.payments.filter(p=>inCycle(p.date,cy)).reduce((s,p)=>s+p.amount,0);return b;}
+function cycleDebtPaid(cy){return DB.payments.filter(p=>inCycle(p.date,cy)).reduce((s,p)=>s+p.amount,0);}
+function cycleDebtDue(cy){return DB.credits.filter(c=>c.nextPay&&c.nextPay!=='\u2014'&&c.nextPay>=cy.start&&c.nextPay<cy.end).reduce((s,c)=>s+c.cuota,0);}
+function spendingPower(){const cy=cutCycle();const inc=cycleIncome(cy);const r=DB.settings.rules;const budget={basicos:inc*r.basicos/100,ahorro:inc*r.ahorro/100,estilo:inc*r.estilo/100};const spent=cycleBuckets(cy);const avail={basicos:budget.basicos-spent.basicos,ahorro:budget.ahorro-spent.ahorro,estilo:budget.estilo-spent.estilo};const cash=accountsTotal();const debtPaid=cycleDebtPaid(cy);const debtDue=cycleDebtDue(cy);const debtFalta=Math.max(0,debtDue-debtPaid);const reducedBasics=Math.max(0,budget.basicos-spent.basicos);const savingsRoom=Math.max(0,avail.ahorro);return {cy,inc,budget,spent,avail,cash,debtPaid,debtDue,debtFalta,reducedBasics,savingsRoom};}
+function renderSpendPower(){const sp=spendingPower();const el=document.getElementById('spendPower');if(!el)return;
+  const bar=(k,label,color)=>{const b=sp.budget[k],s=sp.spent[k],a=sp.avail[k];const usedPct=b>0?Math.min(100,s/b*100):0;const over=a<0;return `<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><b>${label}</b><span class="badge ${over?'danger':(b>0&&a<b*0.15?'warn':'ok')}">${over?'Excedido '+fmtShort(-a):'Disponible '+fmtShort(a)}</span></div><div class="progress"><div style="width:${usedPct}%;background:${color}"></div></div><div style="display:flex;justify-content:space-between;font-size:11.5px;color:var(--artifact-text-muted);margin-top:5px"><span>Gastado ${fmtShort(s)}</span><span>Presupuesto ${fmtShort(b)}</span></div></div>`;};
+  const msgs=[];
+  if(sp.inc<=0)msgs.push({t:'warn',ic:'\ud83d\uddd3\ufe0f',m:'A\u00fan no hay ingresos registrados en este ciclo de corte. Registra el ingreso con fecha del corte (d\u00eda '+cutDay()+') para que la plataforma calcule tu presupuesto.'});
+  if(sp.avail.estilo>0)msgs.push({t:'ok',ic:'\ud83c\udf89',m:'Todav\u00eda puedes gastar '+fmt(sp.avail.estilo)+' en estilo de vida este ciclo.'});
+  if(sp.savingsRoom>0)msgs.push({t:'ok',ic:'\ud83d\udc16',m:'Puedes destinar hasta '+fmt(sp.savingsRoom)+' a ahorro o inversi\u00f3n. Si no lo usas, queda disponible y se acumula para el siguiente ciclo.'});
+  if(sp.reducedBasics>0)msgs.push({t:'ok',ic:'\ud83d\udcc9',m:'Vas por debajo del '+DB.settings.rules.basicos+'% en costos b\u00e1sicos: liberaste '+fmt(sp.reducedBasics)+' que puedes reasignar a ahorro, deuda o estilo de vida.'});
+  if(sp.debtFalta>0)msgs.push({t:'warn',ic:'\ud83d\udcb3',m:'Te falta pagar '+fmt(sp.debtFalta)+' en cuotas de cr\u00e9dito dentro de este ciclo.'});
+  else if(sp.debtDue>0)msgs.push({t:'ok',ic:'\u2705',m:'Ya cubriste las cuotas de cr\u00e9dito de este ciclo ('+fmt(sp.debtPaid)+').'});
+  msgs.push({t:sp.cash<=0?'danger':'warn',ic:'\ud83d\udca7',m:sp.cash<=0?'Ya usaste todo tu ingreso del ciclo; no queda saldo disponible para gastar.':'Tu saldo disponible real es '+fmt(sp.cash)+'. Ese es tu tope m\u00e1ximo para gastar o ahorrar este ciclo, aunque el presupuesto sugiera m\u00e1s.'});
+  el.innerHTML=`<div class="alert-inline ok" style="margin-bottom:14px">Ciclo actual: <b style="margin:0 5px">${sp.cy.start} \u2192 ${sp.cy.end}</b> \u00b7 Corte d\u00eda ${cutDay()} \u00b7 Ingreso del ciclo ${fmt(sp.inc)}</div>
+  <div class="subgrid" style="margin-bottom:6px"><div>${bar('basicos','Costos b\u00e1sicos','var(--artifact-basicos)')}</div><div>${bar('ahorro','Ahorro / inversi\u00f3n','var(--artifact-ahorro)')}</div><div>${bar('estilo','Estilo de vida','var(--artifact-estilo)')}</div></div>
+  <div class="rec-list">${msgs.map(x=>`<div class="rec ${x.t}"><span class="rc-ic">${x.ic}</span><span>${x.m}</span></div>`).join('')}</div>`;
+}
 function creditProgress(c){return c.initial>0?Math.min(100,(1-c.balance/c.initial)*100):0;}
 function creditRemainingCuotas(c){if(c.cuota<=0)return 0;return Math.ceil(c.balance/c.cuota);}
 function estFinishDate(c){const rem=creditRemainingCuotas(c);return addDaysISO(c.nextPay,rem*30);}
@@ -466,6 +458,7 @@ VIEWS.dashboard=function(){
     ${kpi('Próximas obligaciones',fmt(upc.reduce((s,o)=>s+o.amount,0)),'📅',upc.length+' en 15 días')}
     ${kpi('Cierre diario',todayClose?'Realizado':'Pendiente',todayClose?'🟢':'🟠',todayClose?'Hoy '+todayISO():'Sin registrar hoy')}
   </div>`;
+  html+=`<div class="card" style="margin-top:16px"><h3>\u00bfCu\u00e1nto puedes gastar? <span class="card-sub">ciclo de corte 50/20/30</span> ${info('Presupuesto del ciclo de corte actual seg\u00fan la regla 50/20/30, comparado con lo ya gastado. El tope real lo marca tu saldo disponible.')}</h3><div id="spendPower"></div></div>`;
   html+=`<div class="two-col" style="margin-top:16px">
     <div class="card"><h3>Distribución del ingreso <span class="card-sub">recomendado vs. real</span> ${info('Compara el porcentaje recomendado por la regla 50/20/30 con lo realmente utilizado según tus gastos clasificados.')}</h3><div id="distChart" class="chart tall"></div></div>
     <div class="card"><h3>Planeación vs. realidad</h3><div id="pvr"></div></div>
@@ -515,6 +508,7 @@ AFTER.dashboard=function(){
   }else{document.getElementById('debtPie').innerHTML='<div class="empty">Sin créditos registrados</div>';}
   const rl=document.getElementById('recos');
   rl.innerHTML=recommendations().map(r=>`<div class="rec ${r.t}"><span class="rc-ic">${r.ic}</span><span>${r.m}</span></div>`).join('');
+  renderSpendPower();
 };
 
 function info(text){return `<span class="info-ic">i<span class="tip">${text}</span></span>`;}
@@ -1171,6 +1165,7 @@ AFTER.reportes=function(){
   // monthly cash flow
   const months={};DB.incomes.forEach(i=>{const k=monthKey(i.date);months[k]=months[k]||{in:0,out:0};months[k].in+=i.amount;});
   DB.expenses.forEach(e=>{const k=monthKey(e.date);months[k]=months[k]||{in:0,out:0};months[k].out+=e.amount;});
+  DB.payments.forEach(p=>{const k=monthKey(p.date);months[k]=months[k]||{in:0,out:0};months[k].out+=p.amount;});
   const mk=Object.keys(months).sort();
   mkChart('rep_flow',{tooltip:{trigger:'axis',valueFormatter:v=>fmtShort(v)},legend:{data:['Ingresos','Gastos'],textStyle:{color:axis}},grid:{left:10,right:16,bottom:10,top:40,containLabel:true},xAxis:{type:'category',data:mk,axisLabel:{color:axis}},yAxis:{type:'value',axisLabel:{color:axis,formatter:v=>COP.format(v/1000000)+'M'},splitLine:{lineStyle:{color:'rgba(120,130,150,.15)'}}},series:[{name:'Ingresos',type:'bar',data:mk.map(k=>months[k].in),itemStyle:{color:'#12b28c',borderRadius:[4,4,0,0]}},{name:'Gastos',type:'bar',data:mk.map(k=>months[k].out),itemStyle:{color:'#2f6bff',borderRadius:[4,4,0,0]}}]});
   const catm={};DB.expenses.forEach(e=>catm[e.category]=(catm[e.category]||0)+e.amount);
@@ -1197,7 +1192,8 @@ VIEWS.config=function(){
     <div class="field"><label>Básicos (%)</label><input id="cfg_b" type="number" value="${r.basicos}"></div>
     <div class="field"><label>Ahorro (%)</label><input id="cfg_a" type="number" value="${r.ahorro}"></div>
     <div class="field"><label>Estilo de vida (%)</label><input id="cfg_e" type="number" value="${r.estilo}"></div>
-    <div class="field full"><label>Reserva mínima de liquidez</label><input id="cfg_min" type="number" value="${DB.settings.minLiquidity}"></div>
+    <div class="field"><label>Reserva mínima de liquidez</label><input id="cfg_min" type="number" value="${DB.settings.minLiquidity}"></div>
+    <div class="field"><label>Día de corte (presupuesto)</label><input id="cfg_cut" type="number" min="1" max="28" value="${DB.settings.cutDay||20}"></div>
   </div>
   <div class="alert-inline warn" id="cfgWarn" style="display:none">Los porcentajes deben sumar 100%.</div>
   <button class="btn primary" style="margin-top:12px" onclick="saveConfig()">Guardar reglas</button>
@@ -1213,11 +1209,11 @@ VIEWS.config=function(){
 function saveConfig(){
   const b=+document.getElementById('cfg_b').value||0,a=+document.getElementById('cfg_a').value||0,e=+document.getElementById('cfg_e').value||0;
   if(b+a+e!==100){document.getElementById('cfgWarn').style.display='flex';return;}
-  DB.settings.rules={basicos:b,ahorro:a,estilo:e};DB.settings.minLiquidity=+document.getElementById('cfg_min').value||0;
+  DB.settings.rules={basicos:b,ahorro:a,estilo:e};DB.settings.minLiquidity=+document.getElementById('cfg_min').value||0;DB.settings.cutDay=Math.min(28,Math.max(1,+document.getElementById('cfg_cut').value||20));
   logHistory('Configuración','Reglas actualizadas '+b+'/'+a+'/'+e);save();toast('Reglas guardadas','Indicadores recalculados.','info');render();
 }
 function clearDemo(){confirmModal('¿Borrar datos de demostración?','Se eliminarán todos los registros actuales y quedará la plataforma vacía.',()=>{DB.incomes=[];DB.expenses=[];DB.credits=[];DB.payments=[];DB.closures=[];DB.budgets=[];DB.goals=[];DB.accounts=[];DB.history=[];DB.settings.demo=false;logHistory('Sistema','Datos demo eliminados');save();toast('Datos borrados','La plataforma está lista para tus datos.','info');go('dashboard');});}
-function resetAll(){confirmModal('¿Borrar TODOS los datos?','Se restablecerá la plataforma por completo. Esta acción no se puede deshacer.',()=>{localStorage.removeItem(STORE_KEY);DB=load();toast('Plataforma restablecida','','info');go('dashboard');});}
+function resetAll(){confirmModal('¿Borrar TODOS los datos?','Se restablecerá la plataforma por completo y se sincronizará el estado vacío con Firebase. Esta acción no se puede deshacer.',()=>{localStorage.removeItem(STORE_KEY);DB=seed();save();toast('Plataforma restablecida','','info');go('dashboard');});}
 function restoreDemo(){confirmModal('¿Restaurar datos de demostración?','Se reemplazarán los datos actuales por el conjunto de ejemplo.',()=>{DB=seed();save();toast('Datos demo restaurados','','info');go('dashboard');});}
 
 /* ------------------------------ shared UI ------------------------------ */
